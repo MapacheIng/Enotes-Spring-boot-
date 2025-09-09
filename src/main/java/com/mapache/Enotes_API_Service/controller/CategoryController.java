@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class CategoryController {
         return new ResponseEntity<>("Category created successfully", HttpStatus.CREATED);
     }
 
-    @GetMapping("/category")
+    @GetMapping()
     public ResponseEntity<List<CategoryDto>> getAllCategory() {
         List<CategoryDto> allCategory = categoryService.getAllCategory();
         if (CollectionUtils.isEmpty(allCategory)){
@@ -37,7 +38,7 @@ public class CategoryController {
         return new ResponseEntity<>(allCategory, HttpStatus.OK);
     }
 
-    @GetMapping("/active-category")
+    @GetMapping("/active")
     public ResponseEntity<List<CategoryResponse>> getActiveCategory() {
         List<CategoryResponse> allCategory = categoryService.getActiveCategory();
         if (CollectionUtils.isEmpty(allCategory)){
@@ -45,4 +46,25 @@ public class CategoryController {
         }
         return new ResponseEntity<>(allCategory, HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id){
+        CategoryDto categoryDto = categoryService.getCategoryById(id);
+        if (ObjectUtils.isEmpty(categoryDto)) {
+            return new ResponseEntity<>("Category not found with Id= " + id, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(categoryDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCategoryById(@PathVariable Integer id){
+        Boolean deleted = categoryService.deleteCategory(id);
+        if (!deleted) {
+            return new ResponseEntity<>("Category Not Deleted ", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>("Category Deleted success", HttpStatus.OK);
+    }
+
+
+
 }
