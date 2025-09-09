@@ -26,7 +26,7 @@ public class CategoryController {
         if (!saveCategory) {
             return new ResponseEntity<>("not saved", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>("Category created successfully", HttpStatus.CREATED);
+        return new ResponseEntity<>("Category saved successfully", HttpStatus.CREATED);
     }
 
     @GetMapping()
