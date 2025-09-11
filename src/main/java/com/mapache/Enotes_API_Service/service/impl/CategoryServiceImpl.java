@@ -6,6 +6,7 @@ import com.mapache.Enotes_API_Service.entity.Category;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.repository.CategoryRepository;
 import com.mapache.Enotes_API_Service.service.CategoryService;
+import com.mapache.Enotes_API_Service.util.Validation;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -22,12 +23,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     private CategoryRepository categoryRepository;
     private ModelMapper mapper;
+    private Validation validation;
 
     @Override
     public Boolean saveCategory(CategoryDto categoryDto) {
-
+        validation.categoryValidation(categoryDto);
         Category category = mapper.map(categoryDto, Category.class);
-
         if(ObjectUtils.isEmpty(category.getId())){
             category.setIsDeleted(false);
             category.setCreatedBy(1);
