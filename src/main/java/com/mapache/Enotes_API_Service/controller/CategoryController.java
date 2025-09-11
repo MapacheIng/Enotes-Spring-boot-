@@ -5,6 +5,7 @@ import com.mapache.Enotes_API_Service.dto.CategoryResponse;
 import com.mapache.Enotes_API_Service.entity.Category;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +22,8 @@ public class CategoryController {
 
     private CategoryService categoryService;
 
-    @PostMapping("/save-category")
-    public ResponseEntity<String> createCategory(@RequestBody CategoryDto categoryDto){
+    @PostMapping("/save")
+    public ResponseEntity<String> createCategory(@Valid @RequestBody CategoryDto categoryDto){
         Boolean saveCategory = categoryService.saveCategory(categoryDto);
         if (!saveCategory) {
             return new ResponseEntity<>("not saved", HttpStatus.INTERNAL_SERVER_ERROR);
