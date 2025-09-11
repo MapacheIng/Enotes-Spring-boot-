@@ -3,6 +3,7 @@ package com.mapache.Enotes_API_Service.controller;
 import com.mapache.Enotes_API_Service.dto.CategoryDto;
 import com.mapache.Enotes_API_Service.dto.CategoryResponse;
 import com.mapache.Enotes_API_Service.entity.Category;
+import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.service.CategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,10 +49,10 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id){
+    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) throws Exception {
         CategoryDto categoryDto = categoryService.getCategoryById(id);
         if (ObjectUtils.isEmpty(categoryDto)) {
-            return new ResponseEntity<>("Category not found with Id= " + id, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Category here found with Id= " + id, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(categoryDto, HttpStatus.OK);
     }
