@@ -3,6 +3,7 @@ package com.mapache.Enotes_API_Service.service.impl;
 import com.mapache.Enotes_API_Service.dto.CategoryDto;
 import com.mapache.Enotes_API_Service.dto.CategoryResponse;
 import com.mapache.Enotes_API_Service.entity.Category;
+import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.repository.CategoryRepository;
 import com.mapache.Enotes_API_Service.service.CategoryService;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.lang.module.ResolutionException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -73,13 +75,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getCategoryById(Integer id) {
-        Optional<Category> findByCategory = categoryRepository.findByIdAndIsDeletedFalse(id);
-        if(findByCategory.isEmpty()){
-            return null;
+    public CategoryDto getCategoryById(Integer id) throws Exception {
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id=" + id));
+
+        if (!ObjectUtils.isEmpty(category)) {
+            category.getName().toUpperCase();
+            return mapper.map(category, CategoryDto.class);
         }
-        Category category = findByCategory.get();
-        return mapper.map(category, CategoryDto.class);
+        return null;
     }
 
     @Override
