@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing(auditorAwareRef = "auditAware")
 public class EnotesApiServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(EnotesApiServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(EnotesApiServiceApplication.class, args);
+    }
 
 }
