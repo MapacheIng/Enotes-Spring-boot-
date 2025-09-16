@@ -27,4 +27,7 @@ public class Notes extends BaseModel {
     //@JoinColumn(name = "category_id")
     private Category category;
 
+    @ManyToOne
+    private FileDetails fileDetails;
+
 }
