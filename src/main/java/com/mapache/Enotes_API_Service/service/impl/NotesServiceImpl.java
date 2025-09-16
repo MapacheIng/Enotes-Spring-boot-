@@ -1,10 +1,7 @@
 package com.mapache.Enotes_API_Service.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mapache.Enotes_API_Service.dto.CategoryDto;
 import com.mapache.Enotes_API_Service.dto.NotesDto;
-import com.mapache.Enotes_API_Service.entity.Category;
 import com.mapache.Enotes_API_Service.entity.FileDetails;
 import com.mapache.Enotes_API_Service.entity.Notes;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
@@ -17,10 +14,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -58,13 +58,10 @@ public class NotesServiceImpl implements NotesService {
     public Boolean saveNotes(String notes, MultipartFile file) throws ResourceNotFoundException, IOException {
 
         ObjectMapper ob = new ObjectMapper();
-
         NotesDto notesDto = ob.readValue(notes, NotesDto.class);
         // category validation notes
         checkCategoryExist(notesDto.getCategory());
         Notes notesMap = mapper.map(notesDto, Notes.class);
-
-
         FileDetails fileDtls = saveFileDetails(file);
 
         if (!ObjectUtils.isEmpty(fileDtls)) {
@@ -75,21 +72,39 @@ public class NotesServiceImpl implements NotesService {
 
         Notes saveNotes = notesRepository.save(notesMap);
         return !ObjectUtils.isEmpty(saveNotes);
-
     }
 
-    private FileDetails saveFileDetails(MultipartFile file) throws IOException {
+    @Override
+    public List<NotesDto> getAllNotes() {
+        return notesRepository.findAll()
+                .stream()
+                .map(notes ->  mapper.map(notes, NotesDto.class))
+                .toList();
+    }
 
+    @Override
+    public byte[] downloadFile(FileDetails fileDtls) throws IOException {
+        FileInputStream io = new FileInputStream(fileDtls.getPath());
+        return StreamUtils.copyToByteArray(io);
+    }
+
+    @Override
+    public FileDetails getFileDetails(Integer id) throws ResourceNotFoundException {
+        return fileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("File not found"));
+    }
+
+
+    private FileDetails saveFileDetails(MultipartFile file) throws IOException {
         if (!ObjectUtils.isEmpty(file) && !file.isEmpty()) {
 
             String originalFilename = file.getOriginalFilename();
             String extension = FilenameUtils.getExtension(originalFilename);
 
-            List<String> ExtensionAllow = Arrays.asList("png", "jpg", "jpeg", "pdf", "xlsx");
+            List<String> ExtensionAllow = Arrays.asList("png", "jpg", "jpeg", "pdf", "xlsx", "docx");
             if (!ExtensionAllow.contains(extension)) {
-                throw new IllegalArgumentException("Invalid file format. Only PNG, JPG, JPEG, PDF, and XLSX are allowed.");
+                throw new IllegalArgumentException("Invalid file format. Only PNG, JPG, JPEG, PDF, XLSX and DOCX are allowed.");
             }
-
             String rndString = UUID.randomUUID().toString();
             String uploadFileName = rndString + "." + extension;
 
@@ -124,15 +139,6 @@ public class NotesServiceImpl implements NotesService {
             fileName = fileName.substring(0, 7);
         }
         return fileName + "." + extension;
-    }
-
-
-    @Override
-    public List<NotesDto> getAllNotes() {
-        return notesRepository.findAll()
-                .stream()
-                .map(notes ->  mapper.map(notes, NotesDto.class))
-                .toList();
     }
 
     private void checkCategoryExist(NotesDto.CategoryDto category) throws ResourceNotFoundException {

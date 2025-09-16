@@ -1,12 +1,14 @@
 package com.mapache.Enotes_API_Service.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mapache.Enotes_API_Service.dto.NotesDto;
+import com.mapache.Enotes_API_Service.entity.FileDetails;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.service.NotesService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/notes")
-public class NotesCategory {
+public class NotesController {
 
     private NotesService notesService;
 
@@ -43,6 +45,22 @@ public class NotesCategory {
         }
         return CommonUtil.createBuilderResponseMessage("Note saved successfully", HttpStatus.CREATED);
     }
+
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<byte[]> downloadFile(@PathVariable Integer id) throws ResourceNotFoundException, IOException {
+        FileDetails fileDetails = notesService.getFileDetails(id);
+        byte[] data = notesService.downloadFile(fileDetails);
+        HttpHeaders headers = new HttpHeaders();
+        String contentType = CommonUtil.getContentType(fileDetails.getOriginalFileName());
+        headers.setContentType(MediaType.parseMediaType(contentType));
+        headers.setContentDispositionFormData("attachment", fileDetails.getOriginalFileName());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(data);
+    }
+
 
     @GetMapping
     public ResponseEntity<?> getAllNotes(NotesDto notesDto) {

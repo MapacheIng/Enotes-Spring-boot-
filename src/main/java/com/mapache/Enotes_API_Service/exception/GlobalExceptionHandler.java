@@ -8,6 +8,8 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
@@ -40,6 +42,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageConversionException.class)
     public ResponseEntity<Map<String, Object>> handleHttpMessageConversionException(HttpMessageConversionException e) {
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<Map<String, Object>> handleFileNotFoundException(IOException e) {
+        return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
 }
