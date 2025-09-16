@@ -1,6 +1,7 @@
 package com.mapache.Enotes_API_Service.service;
 
 import com.mapache.Enotes_API_Service.dto.NotesDto;
+import com.mapache.Enotes_API_Service.dto.NotesResponse;
 import com.mapache.Enotes_API_Service.entity.FileDetails;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,4 +19,6 @@ public interface NotesService {
     byte[] downloadFile(FileDetails fileDtls) throws IOException;
 
     FileDetails getFileDetails(Integer id) throws ResourceNotFoundException;
+
+    NotesResponse getAllNotesByUser(Integer id, Integer pageNo, Integer pageSize);
 }

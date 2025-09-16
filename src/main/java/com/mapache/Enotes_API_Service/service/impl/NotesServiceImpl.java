@@ -2,6 +2,7 @@ package com.mapache.Enotes_API_Service.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapache.Enotes_API_Service.dto.NotesDto;
+import com.mapache.Enotes_API_Service.dto.NotesResponse;
 import com.mapache.Enotes_API_Service.entity.FileDetails;
 import com.mapache.Enotes_API_Service.entity.Notes;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
@@ -12,6 +13,10 @@ import com.mapache.Enotes_API_Service.service.NotesService;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
@@ -20,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -92,6 +96,29 @@ public class NotesServiceImpl implements NotesService {
     public FileDetails getFileDetails(Integer id) throws ResourceNotFoundException {
         return fileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("File not found"));
+    }
+
+    @Override
+    public NotesResponse getAllNotesByUser(Integer id, Integer pageNo, Integer pageSize) {
+        int safePage = (pageNo == null || pageNo < 0) ? 0 : pageNo;
+        int safeSize = (pageSize == null || pageSize < 1) ? 10 : Math.min(pageSize, 100);
+
+        Pageable pages = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "id"));
+
+        Page<Notes> pageNotes = notesRepository.findByCreatedBy(id, pages);
+        List<NotesDto> notesDto = pageNotes.get()
+                .map((element) -> mapper.map(element, NotesDto.class))
+                .toList();
+
+        return NotesResponse.builder()
+                .notes(notesDto)
+                .pageNo(pageNotes.getNumber())
+                .pageSize(pageNotes.getSize())
+                .totalElements(pageNotes.getTotalElements())
+                .totalPages(pageNotes.getTotalPages())
+                .isFirst(pageNotes.isFirst())
+                .isLast(pageNotes.isLast())
+                .build();
     }
 
 
