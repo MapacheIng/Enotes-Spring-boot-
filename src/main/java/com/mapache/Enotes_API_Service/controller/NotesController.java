@@ -3,6 +3,7 @@ package com.mapache.Enotes_API_Service.controller;
 import com.mapache.Enotes_API_Service.dto.NotesDto;
 import com.mapache.Enotes_API_Service.dto.NotesResponse;
 import com.mapache.Enotes_API_Service.entity.FileDetails;
+import com.mapache.Enotes_API_Service.entity.Notes;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.service.NotesService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
@@ -25,15 +26,6 @@ import java.util.Map;
 public class NotesController {
 
     private NotesService notesService;
-
-//    @PostMapping("/save")
-//    public ResponseEntity<Map<String, Object>> saveNotes(@RequestBody NotesDto notesDto) throws ResourceNotFoundException {
-//        boolean noteSave = notesService.saveNotes(notesDto);
-//        if (!noteSave) {
-//            return CommonUtil.createBuilderResponseMessage("Note not saved successfully", HttpStatus.BAD_REQUEST);
-//        }
-//        return CommonUtil.createBuilderResponseMessage("Note saved successfully", HttpStatus.CREATED);
-//    }
 
 
     @PostMapping("/save")
@@ -79,9 +71,28 @@ public class NotesController {
             @RequestParam(defaultValue = "10") Integer pageSize) {
         Integer userId = 2;
         NotesResponse notes = notesService.getAllNotesByUser(userId, pageNo, pageSize);
-//        if(CollectionUtils.isEmpty(notes)){
-//            return ResponseEntity.noContent().build();
-//        }
+        return CommonUtil.createBuilderResponse(notes, HttpStatus.OK);
+    }
+
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<?> deleteNotes(@PathVariable Integer id) throws ResourceNotFoundException {
+        notesService.softDeleteNotes(id);
+        return CommonUtil.createBuilderResponseMessage("Note deleted successfully", HttpStatus.OK);
+    }
+
+    @GetMapping("/restore/{id}")
+    public ResponseEntity<?> restoreNotes(@PathVariable Integer id) throws ResourceNotFoundException {
+        notesService.restoreNotes(id);
+        return CommonUtil.createBuilderResponseMessage("Notes restore successfully", HttpStatus.OK);
+    }
+
+    @GetMapping("/recycle-bin")
+    public ResponseEntity<?> getUserRecycleBinNotes() throws ResourceNotFoundException {
+        Integer userId = 2;
+        List<NotesDto> notes = notesService.getUserRecycleBinNotes(userId);
+        if (CollectionUtils.isEmpty(notes)) {
+            return CommonUtil.createErrorResponseMessage("Notes not available in Recycle bien", HttpStatus.NO_CONTENT);
+        }
         return CommonUtil.createBuilderResponse(notes, HttpStatus.OK);
     }
 
