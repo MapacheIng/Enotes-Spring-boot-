@@ -91,9 +91,22 @@ public class NotesController {
         Integer userId = 2;
         List<NotesDto> notes = notesService.getUserRecycleBinNotes(userId);
         if (CollectionUtils.isEmpty(notes)) {
-            return CommonUtil.createErrorResponseMessage("Notes not available in Recycle bien", HttpStatus.NO_CONTENT);
+            return CommonUtil.createBuilderResponseMessage("Recycle bin is empty", HttpStatus.OK);
         }
         return CommonUtil.createBuilderResponse(notes, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> hardDeleteNotes(@PathVariable Integer id) throws ResourceNotFoundException {
+        notesService.hardDeleteNotes(id);
+        return CommonUtil.createBuilderResponseMessage("Note deleted successfully", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete-recycle-bin")
+    public ResponseEntity<?> emptyRecycleBin() throws ResourceNotFoundException {
+        Integer userId = 2;
+        notesService.emptyRecycleBin(userId);
+        return CommonUtil.createBuilderResponseMessage("Note deleted successfully", HttpStatus.OK);
     }
 
 

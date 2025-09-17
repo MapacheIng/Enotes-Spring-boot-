@@ -27,4 +27,8 @@ public interface NotesService {
     void restoreNotes(Integer id) throws ResourceNotFoundException;
 
     List<NotesDto> getUserRecycleBinNotes(Integer userId);
+
+    void hardDeleteNotes(Integer id) throws ResourceNotFoundException;
+
+    void emptyRecycleBin(Integer userId);
 }

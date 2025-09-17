@@ -27,6 +27,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -51,14 +53,6 @@ public class NotesServiceImpl implements NotesService {
         this.fileRepository = fileRepository;
     }
 
-//    @Override
-//    public Boolean saveNotes(NotesDto notesDto) throws ResourceNotFoundException {
-//        // category validation notes
-//        checkCategoryExist(notesDto.getCategory());
-//        Notes notes = mapper.map(notesDto, Notes.class);
-//        Notes saveNotes = notesRepository.save(notes);
-//        return !ObjectUtils.isEmpty(saveNotes);
-//    }
 
     @Override
     public Boolean saveNotes(String notes, MultipartFile file) throws ResourceNotFoundException, IOException {
@@ -149,7 +143,7 @@ public class NotesServiceImpl implements NotesService {
         Notes notes = notesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Notes id invalid!! not found"));
         notes.setIsDeleted(true);
-        notes.setDeletedOn(new Date());
+        notes.setDeletedOn(LocalDateTime.now());
         notesRepository.save(notes);
     }
 
@@ -168,6 +162,27 @@ public class NotesServiceImpl implements NotesService {
         return recycleNotes.stream()
                 .map((element) -> mapper.map(element, NotesDto.class))
                 .toList();
+    }
+
+    @Override
+    public void hardDeleteNotes(Integer id) throws ResourceNotFoundException {
+        Notes notes = notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes id invalid!! not found"));
+
+        if (notes.getIsDeleted()){
+            notesRepository.delete(notes);
+        } else {
+            throw new IllegalArgumentException("Notes must be in recycle bin to delete permanently.");
+        }
+
+    }
+
+    @Override
+    public void emptyRecycleBin(Integer userId) {
+        List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+        if (!ObjectUtils.isEmpty(recycleNotes)){
+            notesRepository.deleteAll(recycleNotes);
+        }
     }
 
 
