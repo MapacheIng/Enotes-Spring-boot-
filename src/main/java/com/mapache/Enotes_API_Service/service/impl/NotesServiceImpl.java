@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,13 +28,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 
 @Service
@@ -171,6 +167,16 @@ public class NotesServiceImpl implements NotesService {
 
         if (notes.getIsDeleted()){
             notesRepository.delete(notes);
+            if (!ObjectUtils.isEmpty(notes.getFileDetails())){
+                // delete file from filesystem
+                try {
+                    Files.deleteIfExists(Paths.get(notes.getFileDetails().getPath()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                // delete file details from database
+                fileRepository.delete(notes.getFileDetails());
+            }
         } else {
             throw new IllegalArgumentException("Notes must be in recycle bin to delete permanently.");
         }
@@ -180,8 +186,27 @@ public class NotesServiceImpl implements NotesService {
     @Override
     public void emptyRecycleBin(Integer userId) {
         List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+
         if (!ObjectUtils.isEmpty(recycleNotes)){
+            List<FileDetails> recycleFiles = recycleNotes.stream()
+                    .map(Notes::getFileDetails)
+                    .filter(Objects::nonNull)
+                    .toList();
+
             notesRepository.deleteAll(recycleNotes);
+
+            fileRepository.deleteAll(recycleFiles);
+            // Delete files from filesystem
+            if(!CollectionUtils.isEmpty(recycleFiles)){
+                recycleFiles.stream()
+                        .map(FileDetails::getPath)
+                        .forEach(path -> {
+                            try { Files.deleteIfExists(Paths.get(path)); }
+                            catch (IOException e) { throw new RuntimeException(e); }
+                        });
+            }
+
+
         }
     }
 
@@ -217,9 +242,7 @@ public class NotesServiceImpl implements NotesService {
                 FileDetails saveFileDtls = fileRepository.save(fileDetails);
                 return saveFileDtls;
             }
-
         }
-
         return null;
     }
 
