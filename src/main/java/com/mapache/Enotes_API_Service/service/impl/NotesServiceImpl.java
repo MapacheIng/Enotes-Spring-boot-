@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +28,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 
 @Service
@@ -49,20 +49,21 @@ public class NotesServiceImpl implements NotesService {
         this.fileRepository = fileRepository;
     }
 
-//    @Override
-//    public Boolean saveNotes(NotesDto notesDto) throws ResourceNotFoundException {
-//        // category validation notes
-//        checkCategoryExist(notesDto.getCategory());
-//        Notes notes = mapper.map(notesDto, Notes.class);
-//        Notes saveNotes = notesRepository.save(notes);
-//        return !ObjectUtils.isEmpty(saveNotes);
-//    }
 
     @Override
     public Boolean saveNotes(String notes, MultipartFile file) throws ResourceNotFoundException, IOException {
 
         ObjectMapper ob = new ObjectMapper();
         NotesDto notesDto = ob.readValue(notes, NotesDto.class);
+
+        notesDto.setIsDeleted(false);
+        notesDto.setDeletedOn(null);
+
+        // update notes if id is present
+        if(!ObjectUtils.isEmpty(notesDto.getId())){
+            updateNotes(notesDto, file);
+        }
+
         // category validation notes
         checkCategoryExist(notesDto.getCategory());
         Notes notesMap = mapper.map(notesDto, Notes.class);
@@ -71,11 +72,22 @@ public class NotesServiceImpl implements NotesService {
         if (!ObjectUtils.isEmpty(fileDtls)) {
             notesMap.setFileDetails(fileDtls);
         } else  {
-            notesMap.setFileDetails(null);
+            if(ObjectUtils.isEmpty(notesDto.getId())){
+                notesMap.setFileDetails(null);
+            }
         }
 
         Notes saveNotes = notesRepository.save(notesMap);
         return !ObjectUtils.isEmpty(saveNotes);
+    }
+
+    private void updateNotes(NotesDto notesDto, MultipartFile file) throws ResourceNotFoundException {
+        Notes notes = notesRepository.findById(notesDto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid notes id"));
+        // if file is not present then set existing file details
+        if (ObjectUtils.isEmpty(file)){
+            notesDto.setFileDetails(mapper.map(notes.getFileDetails(), NotesDto.FilesDto.class));
+        }
     }
 
     @Override
@@ -105,7 +117,8 @@ public class NotesServiceImpl implements NotesService {
 
         Pageable pages = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "id"));
 
-        Page<Notes> pageNotes = notesRepository.findByCreatedBy(id, pages);
+//        Page<Notes> pageNotes = findByCreatedBy(Integer createdBy, Pageable pages);
+        Page<Notes> pageNotes = notesRepository.findByCreatedByAndIsDeletedFalse(id, pages);
         List<NotesDto> notesDto = pageNotes.get()
                 .map((element) -> mapper.map(element, NotesDto.class))
                 .toList();
@@ -119,6 +132,82 @@ public class NotesServiceImpl implements NotesService {
                 .isFirst(pageNotes.isFirst())
                 .isLast(pageNotes.isLast())
                 .build();
+    }
+
+    @Override
+    public void softDeleteNotes(Integer id) throws ResourceNotFoundException {
+        Notes notes = notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes id invalid!! not found"));
+        notes.setIsDeleted(true);
+        notes.setDeletedOn(LocalDateTime.now());
+        notesRepository.save(notes);
+    }
+
+    @Override
+    public void restoreNotes(Integer id) throws ResourceNotFoundException {
+        Notes notes = notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes id invalid!! not found"));
+        notes.setIsDeleted(false);
+        notes.setDeletedOn(null);
+        notesRepository.save(notes);
+    }
+
+    @Override
+    public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
+        List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+        return recycleNotes.stream()
+                .map((element) -> mapper.map(element, NotesDto.class))
+                .toList();
+    }
+
+    @Override
+    public void hardDeleteNotes(Integer id) throws ResourceNotFoundException {
+        Notes notes = notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes id invalid!! not found"));
+
+        if (notes.getIsDeleted()){
+            notesRepository.delete(notes);
+            if (!ObjectUtils.isEmpty(notes.getFileDetails())){
+                // delete file from filesystem
+                try {
+                    Files.deleteIfExists(Paths.get(notes.getFileDetails().getPath()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                // delete file details from database
+                fileRepository.delete(notes.getFileDetails());
+            }
+        } else {
+            throw new IllegalArgumentException("Notes must be in recycle bin to delete permanently.");
+        }
+
+    }
+
+    @Override
+    public void emptyRecycleBin(Integer userId) {
+        List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+
+        if (!ObjectUtils.isEmpty(recycleNotes)){
+            List<FileDetails> recycleFiles = recycleNotes.stream()
+                    .map(Notes::getFileDetails)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            notesRepository.deleteAll(recycleNotes);
+
+            fileRepository.deleteAll(recycleFiles);
+            // Delete files from filesystem
+            if(!CollectionUtils.isEmpty(recycleFiles)){
+                recycleFiles.stream()
+                        .map(FileDetails::getPath)
+                        .forEach(path -> {
+                            try { Files.deleteIfExists(Paths.get(path)); }
+                            catch (IOException e) { throw new RuntimeException(e); }
+                        });
+            }
+
+
+        }
     }
 
 
@@ -153,9 +242,7 @@ public class NotesServiceImpl implements NotesService {
                 FileDetails saveFileDtls = fileRepository.save(fileDetails);
                 return saveFileDtls;
             }
-
         }
-
         return null;
     }
 

@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,6 +26,10 @@ public class Notes extends BaseModel {
     private String title;
 
     private String description;
+
+    private Boolean isDeleted;
+
+    private LocalDateTime deletedOn;
 
     @ManyToOne
     //@JoinColumn(name = "category_id")
