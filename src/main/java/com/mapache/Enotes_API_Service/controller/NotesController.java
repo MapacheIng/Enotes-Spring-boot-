@@ -1,5 +1,6 @@
 package com.mapache.Enotes_API_Service.controller;
 
+import com.mapache.Enotes_API_Service.dto.FavouriteNoteDto;
 import com.mapache.Enotes_API_Service.dto.NotesDto;
 import com.mapache.Enotes_API_Service.dto.NotesResponse;
 import com.mapache.Enotes_API_Service.entity.FileDetails;
@@ -108,6 +109,29 @@ public class NotesController {
         notesService.emptyRecycleBin(userId);
         return CommonUtil.createBuilderResponseMessage("Note deleted successfully", HttpStatus.OK);
     }
+
+    @GetMapping("/fav/{noteId}")
+    public ResponseEntity<?> favoriteNote(@PathVariable Integer noteId) throws ResourceNotFoundException {
+        notesService.favoriteNotes(noteId);
+        return CommonUtil.createBuilderResponseMessage("Notes added Favorite", HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/un-fav/{favNoteId}")
+    public ResponseEntity<?> unfavoriteNote(@PathVariable Integer favNoteId) throws ResourceNotFoundException {
+        notesService.unFavoriteNotes(favNoteId);
+        return CommonUtil.createBuilderResponseMessage("Remove Favorite", HttpStatus.OK);
+    }
+
+    @GetMapping("/fav-notes")
+    public ResponseEntity<?> getUserFavoriteNote() throws ResourceNotFoundException {
+        List<FavouriteNoteDto> userFavoriteNotes = notesService.getUserFavoriteNotes();
+        if (CollectionUtils.isEmpty(userFavoriteNotes)) {
+            return ResponseEntity.noContent().build();
+        }
+        return CommonUtil.createBuilderResponse(userFavoriteNotes, HttpStatus.OK);
+    }
+
+
 
 
 

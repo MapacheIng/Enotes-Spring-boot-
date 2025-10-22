@@ -1,12 +1,15 @@
 package com.mapache.Enotes_API_Service.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mapache.Enotes_API_Service.dto.FavouriteNoteDto;
 import com.mapache.Enotes_API_Service.dto.NotesDto;
 import com.mapache.Enotes_API_Service.dto.NotesResponse;
+import com.mapache.Enotes_API_Service.entity.FavouriteNote;
 import com.mapache.Enotes_API_Service.entity.FileDetails;
 import com.mapache.Enotes_API_Service.entity.Notes;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.repository.CategoryRepository;
+import com.mapache.Enotes_API_Service.repository.FavoriteNotesRepository;
 import com.mapache.Enotes_API_Service.repository.FileRepository;
 import com.mapache.Enotes_API_Service.repository.NotesRepository;
 import com.mapache.Enotes_API_Service.service.NotesService;
@@ -39,14 +42,16 @@ public class NotesServiceImpl implements NotesService {
     private final ModelMapper mapper;
     private final CategoryRepository categoryRepository;
     private final FileRepository fileRepository;
+    private final FavoriteNotesRepository favoriteNotesRepository;
     @Value("${file.upload.path}")
     private String uploadPath;
 
-    public NotesServiceImpl(NotesRepository notesRepository, ModelMapper mapper, CategoryRepository categoryRepository, FileRepository fileRepository) {
+    public NotesServiceImpl(NotesRepository notesRepository, ModelMapper mapper, CategoryRepository categoryRepository, FileRepository fileRepository, FavoriteNotesRepository favoriteNotesRepository) {
         this.notesRepository = notesRepository;
         this.mapper = mapper;
         this.categoryRepository = categoryRepository;
         this.fileRepository = fileRepository;
+        this.favoriteNotesRepository = favoriteNotesRepository;
     }
 
 
@@ -208,6 +213,36 @@ public class NotesServiceImpl implements NotesService {
 
 
         }
+    }
+
+    @Override
+    public void favoriteNotes(Integer noteId) throws ResourceNotFoundException {
+        int userId = 2; // get user id from security context
+        Notes notes = notesRepository.findById(noteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes id invalid!! not found"));
+        FavouriteNote favouriteNote = FavouriteNote.builder()
+                .note(notes)
+                .userId(userId)
+                .build();
+        favoriteNotesRepository.save(favouriteNote);
+    }
+
+    @Override
+    public void unFavoriteNotes(Integer favoriteNoteId) throws ResourceNotFoundException {
+        FavouriteNote favouriteNote = favoriteNotesRepository.findById(favoriteNoteId)
+                .orElseThrow(() -> new ResourceNotFoundException("favorite notes id invalid!! not found"));
+
+        favoriteNotesRepository.delete(favouriteNote);
+    }
+
+    @Override
+    public List<FavouriteNoteDto> getUserFavoriteNotes() {
+        int userId = 2; // get user id from security context
+        List<FavouriteNote> favouriteNotes = favoriteNotesRepository.findByUserId(userId);
+        return favouriteNotes
+                .stream()
+                .map(element -> mapper.map(element, FavouriteNoteDto.class))
+                .toList();
     }
 
 

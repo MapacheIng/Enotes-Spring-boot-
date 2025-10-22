@@ -1,5 +1,6 @@
 package com.mapache.Enotes_API_Service.service;
 
+import com.mapache.Enotes_API_Service.dto.FavouriteNoteDto;
 import com.mapache.Enotes_API_Service.dto.NotesDto;
 import com.mapache.Enotes_API_Service.dto.NotesResponse;
 import com.mapache.Enotes_API_Service.entity.FileDetails;
@@ -31,4 +32,11 @@ public interface NotesService {
     void hardDeleteNotes(Integer id) throws ResourceNotFoundException;
 
     void emptyRecycleBin(Integer userId);
+
+    void favoriteNotes(Integer noteId) throws ResourceNotFoundException;
+
+    void unFavoriteNotes(Integer favoriteNoteId) throws ResourceNotFoundException;
+
+    List<FavouriteNoteDto> getUserFavoriteNotes();
+
 }
