@@ -39,4 +39,6 @@ public interface NotesService {
 
     List<FavouriteNoteDto> getUserFavoriteNotes();
 
+    boolean copyNotes(Integer id) throws ResourceNotFoundException;
+
 }
