@@ -245,6 +245,25 @@ public class NotesServiceImpl implements NotesService {
                 .toList();
     }
 
+    @Override
+    public boolean copyNotes(Integer id) throws ResourceNotFoundException {
+        Notes notes = notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes id invalid!! not found"));
+
+        Notes copyNotes = Notes.builder()
+                .title(notes.getTitle())
+                .description(notes.getDescription())
+                .isDeleted(false)
+                .fileDetails(null)
+                .build();
+
+        Notes save = notesRepository.save(copyNotes);
+
+        return !ObjectUtils.isEmpty(save);
+
+
+    }
+
 
     private FileDetails saveFileDetails(MultipartFile file) throws IOException {
         if (!ObjectUtils.isEmpty(file) && !file.isEmpty()) {
