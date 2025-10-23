@@ -1,10 +1,14 @@
 package com.mapache.Enotes_API_Service.util;
 
 import com.mapache.Enotes_API_Service.dto.CategoryDto;
+import com.mapache.Enotes_API_Service.dto.TodoDto;
+import com.mapache.Enotes_API_Service.enums.TodoStatus;
+import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.exception.ValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -52,6 +56,24 @@ public class Validation {
         }
 
     }
+
+    public void todoValidation(TodoDto todoDto) throws ResourceNotFoundException {
+//        TodoDto.StatusDto status = todoDto.getStatus();
+//        boolean statusFound = false;
+//        for(TodoStatus ts : TodoStatus.values()) {
+//            if(ts.getId().equals(status.getId())) {
+//                statusFound = true;
+//                break;
+//            }
+//        }
+
+        boolean exists = Arrays.stream(TodoStatus.values())
+                .anyMatch(ts -> ts.getId().equals(todoDto.getStatus().getId()));
+        if (!exists) {
+            throw new ResourceNotFoundException("Invalid status");
+        }
+    }
+
 
 
 }
