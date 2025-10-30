@@ -5,9 +5,11 @@ import com.mapache.Enotes_API_Service.dto.TodoDto;
 import com.mapache.Enotes_API_Service.dto.UserDto;
 import com.mapache.Enotes_API_Service.entity.Role;
 import com.mapache.Enotes_API_Service.enums.TodoStatus;
+import com.mapache.Enotes_API_Service.exception.ExistDataException;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.exception.ValidationException;
 import com.mapache.Enotes_API_Service.repository.RoleRepository;
+import com.mapache.Enotes_API_Service.repository.UserRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -24,8 +26,11 @@ public class Validation {
 
     private final RoleRepository roleRepository;
 
-    public Validation(RoleRepository roleRepository) {
+    private final UserRepository userRepository;
+
+    public Validation(RoleRepository roleRepository, UserRepository userRepository) {
         this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
     }
 
     public void categoryValidation(CategoryDto categoryDto) {
@@ -90,8 +95,16 @@ public class Validation {
         if (!StringUtils.hasText(userDto.getLastName())){
             throw new IllegalArgumentException("last name field is invalid");
         }
+        if (!StringUtils.hasText(userDto.getPassword())){
+            throw new IllegalArgumentException("password field is invalid");
+        }
         if (!StringUtils.hasText(userDto.getEmail()) || !userDto.getEmail().matches(Constants.EMAIL_REGEX)){
             throw new IllegalArgumentException("email field is invalid");
+        } else {
+            boolean exists = userRepository.existsByEmail(userDto.getEmail());
+            if (exists) {
+                throw new ExistDataException("Email already exists");
+            }
         }
 
         if (!StringUtils.hasText(userDto.getMobNumber()) || !userDto.getMobNumber().matches(Constants.MOB_NUMBER_REGEX)){
@@ -114,6 +127,7 @@ public class Validation {
         if (!CollectionUtils.isEmpty(invalidReqRoleIds)) {
             throw   new IllegalArgumentException("roles is invalid " + invalidReqRoleIds);
         }
+
 
 
     }
