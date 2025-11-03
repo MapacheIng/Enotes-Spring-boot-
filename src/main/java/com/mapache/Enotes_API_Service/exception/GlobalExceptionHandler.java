@@ -8,7 +8,6 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
