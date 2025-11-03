@@ -8,7 +8,6 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
@@ -20,6 +19,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleException(Exception e) {
         //log.error("GlobalExceptionHandler :: handleException ::", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(SuccessException.class)
+    public ResponseEntity<Map<String, Object>> handleSuccessException(SuccessException e) {
+        //log.error("GlobalExceptionHandler :: handleException ::", e.getMessage());
+        return CommonUtil.createBuilderResponseMessage(e.getMessage(), HttpStatus.OK);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -7,7 +7,7 @@ import java.io.UnsupportedEncodingException;
 
 public interface UserService {
 
-    Boolean register(UserDto userDto) throws MessagingException, UnsupportedEncodingException;
+    Boolean register(UserDto userDto, String url) throws MessagingException, UnsupportedEncodingException;
 
 
 
