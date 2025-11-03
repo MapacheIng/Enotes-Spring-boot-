@@ -2,6 +2,7 @@ package com.mapache.Enotes_API_Service.service.impl;
 
 import com.mapache.Enotes_API_Service.dto.EmailRequest;
 import com.mapache.Enotes_API_Service.dto.UserDto;
+import com.mapache.Enotes_API_Service.entity.AccountStatus;
 import com.mapache.Enotes_API_Service.entity.Role;
 import com.mapache.Enotes_API_Service.entity.User;
 import com.mapache.Enotes_API_Service.repository.RoleRepository;
@@ -15,6 +16,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -40,28 +42,42 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean register(UserDto userDto) throws MessagingException, UnsupportedEncodingException {
+    public Boolean register(UserDto userDto, String url) throws MessagingException, UnsupportedEncodingException {
         validation.userValidation(userDto);
         User user = mapper.map(userDto, User.class);
         setRole(userDto, user);
+
+        AccountStatus accountStatus = AccountStatus.builder()
+                .isActive(false)
+                .verificationCode(UUID.randomUUID().toString())
+                .build();
+        user.setStatus(accountStatus);
+
         User save = userRepository.save(user);
         if(ObjectUtils.isEmpty(save)){
             return false;
         }
-        emailSend(save);
+        emailSend(save, url);
 
         return !ObjectUtils.isEmpty(save);
 
     }
 
-    private void emailSend(User save) throws MessagingException, UnsupportedEncodingException {
+    private void emailSend(User save, String url) throws MessagingException, UnsupportedEncodingException {
 
-        String message="Hi, <b> "+save.getFirstName()+" </b> "
-                + "<br> Your account register sucessfully.<br>"
-                +"<br> Click the below link verify & Active your account <br>"
-                +"<a href='#'>Click Here</a> <br><br>"
-                +"Thanks,<br>Enotes.com"
-                ;
+        String message = """
+        Hi, <b>%s</b><br>
+        Your account registered successfully.<br>
+        <br>
+        Click the below link to verify & activate your account:<br>
+        <a href='%s'>Click Here</a><br><br>
+        Thanks,<br>
+        Enotes.com
+        """.formatted(
+                save.getFirstName(),
+                url + "/api/v1/home/verify?uid=" + save.getId() + "&code=" + save.getStatus().getVerificationCode()
+        );
+
 
         EmailRequest emailRequest = EmailRequest.builder()
                 .to(save.getEmail())

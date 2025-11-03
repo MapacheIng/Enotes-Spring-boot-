@@ -32,4 +32,9 @@ public class User {
     private List<Role> roles;
 
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "status_id")
+    private AccountStatus status;
+
+
 }

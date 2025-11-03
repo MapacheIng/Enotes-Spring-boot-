@@ -1,6 +1,7 @@
 package com.mapache.Enotes_API_Service.util;
 
 import com.mapache.Enotes_API_Service.handler.GenericResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -60,5 +61,11 @@ public class CommonUtil {
             case "jpeg" -> "image/jpeg";
             default -> "application/octet-stream";
         };
+    }
+
+    public static String getUrl(HttpServletRequest request) {
+        String apiUrl = request.getRequestURL().toString(); // http://localhost:8081/api/v1/user
+        apiUrl = apiUrl.replace(request.getServletPath(), ""); // http://localhost:8081
+        return apiUrl;
     }
 }
