@@ -10,6 +10,7 @@ import com.mapache.Enotes_API_Service.entity.Role;
 import com.mapache.Enotes_API_Service.entity.User;
 import com.mapache.Enotes_API_Service.repository.RoleRepository;
 import com.mapache.Enotes_API_Service.repository.UserRepository;
+import com.mapache.Enotes_API_Service.service.JwtService;
 import com.mapache.Enotes_API_Service.service.UserService;
 import com.mapache.Enotes_API_Service.util.Validation;
 import jakarta.mail.MessagingException;
@@ -37,6 +38,7 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
 
     public UserServiceImpl(UserRepository userRepository,
@@ -45,7 +47,8 @@ public class UserServiceImpl implements UserService {
                            ModelMapper mapper,
                            EmailService emailService,
                            AuthenticationManager authenticationManager,
-                           BCryptPasswordEncoder passwordEncoder) {
+                           BCryptPasswordEncoder passwordEncoder,
+                           JwtService jwtService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.validation = validation;
@@ -53,6 +56,7 @@ public class UserServiceImpl implements UserService {
         this.emailService = emailService;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -89,13 +93,12 @@ public class UserServiceImpl implements UserService {
         if (authenticate.isAuthenticated()){
             CustomUserDetails customUserDetails = (CustomUserDetails) authenticate.getPrincipal();
 
-            String token = "sdafsadfhhgdsfhsgh";
+            String token = jwtService.generateToken(customUserDetails.getUser());
 
-            LoginResponse loginResponse = LoginResponse.builder()
+            return LoginResponse.builder()
                     .user(mapper.map(customUserDetails.getUser(), UserDto.class))
                     .token(token)
                     .build();
-            return loginResponse;
         }
 
         return null;
