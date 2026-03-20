@@ -4,6 +4,7 @@ import com.mapache.Enotes_API_Service.dto.FavouriteNoteDto;
 import com.mapache.Enotes_API_Service.dto.NotesDto;
 import com.mapache.Enotes_API_Service.dto.NotesResponse;
 import com.mapache.Enotes_API_Service.entity.FileDetails;
+import com.mapache.Enotes_API_Service.entity.User;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.service.NotesService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
@@ -74,8 +75,7 @@ public class NotesController {
     public ResponseEntity<?> getAllNotesByUser(
             @RequestParam(defaultValue = "0") Integer pageNo,
             @RequestParam(defaultValue = "10") Integer pageSize) {
-        Integer userId = 2;
-        NotesResponse notes = notesService.getAllNotesByUser(userId, pageNo, pageSize);
+        NotesResponse notes = notesService.getAllNotesByUser(pageNo, pageSize);
         return CommonUtil.createBuilderResponse(notes, HttpStatus.OK);
     }
 
@@ -96,8 +96,7 @@ public class NotesController {
     @GetMapping("/recycle-bin")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getUserRecycleBinNotes() throws ResourceNotFoundException {
-        Integer userId = 2;
-        List<NotesDto> notes = notesService.getUserRecycleBinNotes(userId);
+        List<NotesDto> notes = notesService.getUserRecycleBinNotes();
         if (CollectionUtils.isEmpty(notes)) {
             return CommonUtil.createBuilderResponseMessage("Recycle bin is empty", HttpStatus.OK);
         }
@@ -113,9 +112,8 @@ public class NotesController {
 
     @DeleteMapping("/delete-recycle-bin")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> emptyRecycleBin() throws ResourceNotFoundException {
-        Integer userId = 2;
-        notesService.emptyRecycleBin(userId);
+    public ResponseEntity<?> emptyUserRecycleBin() throws ResourceNotFoundException {
+        notesService.emptyRecycleBin();
         return CommonUtil.createBuilderResponseMessage("Note deleted successfully", HttpStatus.OK);
     }
 

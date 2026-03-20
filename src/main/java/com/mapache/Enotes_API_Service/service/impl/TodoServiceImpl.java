@@ -6,6 +6,7 @@ import com.mapache.Enotes_API_Service.enums.TodoStatus;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.repository.TodoRepository;
 import com.mapache.Enotes_API_Service.service.TodoService;
+import com.mapache.Enotes_API_Service.util.CommonUtil;
 import com.mapache.Enotes_API_Service.util.Validation;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public List<TodoDto> getTodoByUser() {
-        Integer userId = 2; //TO-DO get user id from token
+        Integer userId = CommonUtil.getLoggedInUser().getId();
         List<Todo> todos = todoRepository.findByCreatedBy(userId);
         return todos.stream()
                 .map((td) -> {

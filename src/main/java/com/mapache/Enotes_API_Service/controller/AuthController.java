@@ -2,7 +2,7 @@ package com.mapache.Enotes_API_Service.controller;
 
 import com.mapache.Enotes_API_Service.dto.LoginRequest;
 import com.mapache.Enotes_API_Service.dto.LoginResponse;
-import com.mapache.Enotes_API_Service.dto.UserDto;
+import com.mapache.Enotes_API_Service.dto.UserRequest;
 import com.mapache.Enotes_API_Service.service.UserService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
 import jakarta.mail.MessagingException;
@@ -29,9 +29,9 @@ class AuthController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+    public ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
         String url = CommonUtil.getUrl(request);
-        Boolean register = userService.register(userDto, url);
+        Boolean register = userService.register(userRequest, url);
         if (!register) {
             return CommonUtil.createErrorResponseMessage("Register failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }

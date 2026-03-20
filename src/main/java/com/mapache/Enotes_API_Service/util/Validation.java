@@ -2,7 +2,7 @@ package com.mapache.Enotes_API_Service.util;
 
 import com.mapache.Enotes_API_Service.dto.CategoryDto;
 import com.mapache.Enotes_API_Service.dto.TodoDto;
-import com.mapache.Enotes_API_Service.dto.UserDto;
+import com.mapache.Enotes_API_Service.dto.UserRequest;
 import com.mapache.Enotes_API_Service.entity.Role;
 import com.mapache.Enotes_API_Service.enums.TodoStatus;
 import com.mapache.Enotes_API_Service.exception.ExistDataException;
@@ -87,31 +87,31 @@ public class Validation {
     }
 
 
-    public void userValidation(UserDto userDto) {
+    public void userValidation(UserRequest userRequest) {
 
-        if(!StringUtils.hasText(userDto.getFirstName())){
+        if(!StringUtils.hasText(userRequest.getFirstName())){
             throw new IllegalArgumentException("first name field is invalid");
         }
-        if (!StringUtils.hasText(userDto.getLastName())){
+        if (!StringUtils.hasText(userRequest.getLastName())){
             throw new IllegalArgumentException("last name field is invalid");
         }
-        if (!StringUtils.hasText(userDto.getPassword())){
+        if (!StringUtils.hasText(userRequest.getPassword())){
             throw new IllegalArgumentException("password field is invalid");
         }
-        if (!StringUtils.hasText(userDto.getEmail()) || !userDto.getEmail().matches(Constants.EMAIL_REGEX)){
+        if (!StringUtils.hasText(userRequest.getEmail()) || !userRequest.getEmail().matches(Constants.EMAIL_REGEX)){
             throw new IllegalArgumentException("email field is invalid");
         } else {
-            boolean exists = userRepository.existsByEmail(userDto.getEmail());
+            boolean exists = userRepository.existsByEmail(userRequest.getEmail());
             if (exists) {
                 throw new ExistDataException("Email already exists");
             }
         }
 
-        if (!StringUtils.hasText(userDto.getMobNumber()) || !userDto.getMobNumber().matches(Constants.MOB_NUMBER_REGEX)){
+        if (!StringUtils.hasText(userRequest.getMobNumber()) || !userRequest.getMobNumber().matches(Constants.MOB_NUMBER_REGEX)){
             throw new IllegalArgumentException("mobile number field is invalid");
         }
 
-        if (CollectionUtils.isEmpty(userDto.getRoles())) {
+        if (CollectionUtils.isEmpty(userRequest.getRoles())) {
             throw  new IllegalArgumentException("roles field is invalid");
         }
 
@@ -119,8 +119,8 @@ public class Validation {
                 .map(Role::getId)
                 .toList();
 
-        List<Integer> invalidReqRoleIds = userDto.getRoles().stream()
-                .map(UserDto.RoleDto::getId)
+        List<Integer> invalidReqRoleIds = userRequest.getRoles().stream()
+                .map(UserRequest.RoleDto::getId)
                 .filter(r -> !rolesIds.contains(r))
                 .toList();
 
