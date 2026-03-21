@@ -13,6 +13,7 @@ import com.mapache.Enotes_API_Service.repository.FavoriteNotesRepository;
 import com.mapache.Enotes_API_Service.repository.FileRepository;
 import com.mapache.Enotes_API_Service.repository.NotesRepository;
 import com.mapache.Enotes_API_Service.service.NotesService;
+import com.mapache.Enotes_API_Service.util.CommonUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -116,14 +117,15 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    public NotesResponse getAllNotesByUser(Integer id, Integer pageNo, Integer pageSize) {
+    public NotesResponse getAllNotesByUser(Integer pageNo, Integer pageSize) {
+        Integer userId = CommonUtil.getLoggedInUser().getId();
         int safePage = (pageNo == null || pageNo < 0) ? 0 : pageNo;
         int safeSize = (pageSize == null || pageSize < 1) ? 10 : Math.min(pageSize, 100);
 
         Pageable pages = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "id"));
 
 //        Page<Notes> pageNotes = findByCreatedBy(Integer createdBy, Pageable pages);
-        Page<Notes> pageNotes = notesRepository.findByCreatedByAndIsDeletedFalse(id, pages);
+        Page<Notes> pageNotes = notesRepository.findByCreatedByAndIsDeletedFalse(userId, pages);
         List<NotesDto> notesDto = pageNotes.get()
                 .map((element) -> mapper.map(element, NotesDto.class))
                 .toList();
@@ -158,7 +160,8 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
+    public List<NotesDto> getUserRecycleBinNotes() {
+        Integer userId = CommonUtil.getLoggedInUser().getId();
         List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
         return recycleNotes.stream()
                 .map((element) -> mapper.map(element, NotesDto.class))
@@ -189,7 +192,8 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    public void emptyRecycleBin(Integer userId) {
+    public void emptyRecycleBin() {
+        Integer userId = CommonUtil.getLoggedInUser().getId();
         List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
 
         if (!ObjectUtils.isEmpty(recycleNotes)){
@@ -217,7 +221,7 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void favoriteNotes(Integer noteId) throws ResourceNotFoundException {
-        int userId = 2; // get user id from security context
+        Integer userId = CommonUtil.getLoggedInUser().getId();
         Notes notes = notesRepository.findById(noteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notes id invalid!! not found"));
         FavouriteNote favouriteNote = FavouriteNote.builder()
@@ -237,7 +241,7 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public List<FavouriteNoteDto> getUserFavoriteNotes() {
-        int userId = 2; // get user id from security context
+        Integer userId = CommonUtil.getLoggedInUser().getId();
         List<FavouriteNote> favouriteNotes = favoriteNotesRepository.findByUserId(userId);
         return favouriteNotes
                 .stream()

@@ -1,10 +1,14 @@
 package com.mapache.Enotes_API_Service.util;
 
+import com.mapache.Enotes_API_Service.config.security.CustomUserDetails;
+import com.mapache.Enotes_API_Service.dto.UserResponse;
+import com.mapache.Enotes_API_Service.entity.User;
 import com.mapache.Enotes_API_Service.handler.GenericResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Map;
 
@@ -67,4 +71,12 @@ public class CommonUtil {
         apiUrl = apiUrl.replace(request.getServletPath(), ""); // http://localhost:8081
         return apiUrl;
     }
+
+    public static User getLoggedInUser(){
+        CustomUserDetails logUser = (CustomUserDetails) SecurityContextHolder.getContext()
+                                                                                .getAuthentication().getPrincipal();
+        return  logUser.getUser();
+
+    }
+
 }

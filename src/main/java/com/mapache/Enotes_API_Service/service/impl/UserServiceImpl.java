@@ -4,7 +4,7 @@ import com.mapache.Enotes_API_Service.config.security.CustomUserDetails;
 import com.mapache.Enotes_API_Service.dto.EmailRequest;
 import com.mapache.Enotes_API_Service.dto.LoginRequest;
 import com.mapache.Enotes_API_Service.dto.LoginResponse;
-import com.mapache.Enotes_API_Service.dto.UserDto;
+import com.mapache.Enotes_API_Service.dto.UserRequest;
 import com.mapache.Enotes_API_Service.entity.AccountStatus;
 import com.mapache.Enotes_API_Service.entity.Role;
 import com.mapache.Enotes_API_Service.entity.User;
@@ -19,7 +19,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -60,10 +59,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean register(UserDto userDto, String url) throws MessagingException, UnsupportedEncodingException {
-        validation.userValidation(userDto);
-        User user = mapper.map(userDto, User.class);
-        setRole(userDto, user);
+    public Boolean register(UserRequest userRequest, String url) throws MessagingException, UnsupportedEncodingException {
+        validation.userValidation(userRequest);
+        User user = mapper.map(userRequest, User.class);
+        setRole(userRequest, user);
 
         AccountStatus accountStatus = AccountStatus.builder()
                 .isActive(false)
@@ -96,7 +95,7 @@ public class UserServiceImpl implements UserService {
             String token = jwtService.generateToken(customUserDetails.getUser());
 
             return LoginResponse.builder()
-                    .user(mapper.map(customUserDetails.getUser(), UserDto.class))
+                    .user(mapper.map(customUserDetails.getUser(), UserRequest.class))
                     .token(token)
                     .build();
         }
@@ -130,9 +129,9 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmail(emailRequest);
     }
 
-    private void setRole(UserDto userDto, User user) {
-        List<Integer> reqRoleId = userDto.getRoles().stream()
-                .map(UserDto.RoleDto::getId)
+    private void setRole(UserRequest userRequest, User user) {
+        List<Integer> reqRoleId = userRequest.getRoles().stream()
+                .map(UserRequest.RoleDto::getId)
                 .toList();
         List<Role> roles = roleRepository.findAllById(reqRoleId);
         user.setRoles(roles);
