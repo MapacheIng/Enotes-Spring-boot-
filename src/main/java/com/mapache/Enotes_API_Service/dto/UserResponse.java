@@ -11,14 +11,14 @@ import java.util.List;
 @Builder
 public class UserResponse {
 
-    private Integer id;
+    //private Integer id;
     private String firstName;
     private String lastName;
     private String email;
     private String mobNumber;
     private StatusDto status;
 
-    private List<UserRequest.RoleDto> roles;
+    private List<UserResponse.RoleDto> roles;
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -26,7 +26,7 @@ public class UserResponse {
     @Getter
     @Builder
     public static class RoleDto {
-        private Integer id;
+        //private Integer id;
         private String name;
     }
 
@@ -36,7 +36,7 @@ public class UserResponse {
     @Setter
     @Builder
     public static class StatusDto {
-        private Integer id;
+        //private Integer id;
         private Boolean isActive;
     }
 

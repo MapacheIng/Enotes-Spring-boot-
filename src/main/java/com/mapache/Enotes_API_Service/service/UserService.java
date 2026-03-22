@@ -1,16 +1,9 @@
 package com.mapache.Enotes_API_Service.service;
 
-import com.mapache.Enotes_API_Service.dto.LoginRequest;
-import com.mapache.Enotes_API_Service.dto.LoginResponse;
-import com.mapache.Enotes_API_Service.dto.UserRequest;
-import jakarta.mail.MessagingException;
-
-import java.io.UnsupportedEncodingException;
+import com.mapache.Enotes_API_Service.dto.PasswordChangeRequest;
 
 public interface UserService {
 
-    Boolean register(UserRequest userRequest, String url) throws MessagingException, UnsupportedEncodingException;
+    void changePassword(PasswordChangeRequest passwordChangeRequest);
 
-
-    LoginResponse login(LoginRequest loginRequest);
 }
