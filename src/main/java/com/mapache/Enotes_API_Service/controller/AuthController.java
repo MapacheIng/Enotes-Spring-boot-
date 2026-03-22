@@ -3,7 +3,7 @@ package com.mapache.Enotes_API_Service.controller;
 import com.mapache.Enotes_API_Service.dto.LoginRequest;
 import com.mapache.Enotes_API_Service.dto.LoginResponse;
 import com.mapache.Enotes_API_Service.dto.UserRequest;
-import com.mapache.Enotes_API_Service.service.UserService;
+import com.mapache.Enotes_API_Service.service.AuthService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,16 +22,16 @@ import java.io.UnsupportedEncodingException;
 class AuthController {
 
 
-    private final UserService userService;
+    private final AuthService authService;
 
-    AuthController(UserService userService) {
-        this.userService = userService;
+    AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping
     public ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
         String url = CommonUtil.getUrl(request);
-        Boolean register = userService.register(userRequest, url);
+        Boolean register = authService.register(userRequest, url);
         if (!register) {
             return CommonUtil.createErrorResponseMessage("Register failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -40,7 +40,7 @@ class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws MessagingException, UnsupportedEncodingException {
-        LoginResponse loginResponse = userService.login(loginRequest);
+        LoginResponse loginResponse = authService.login(loginRequest);
         if (ObjectUtils.isEmpty(loginResponse)) {
             return CommonUtil.createErrorResponseMessage("Login failed", HttpStatus.BAD_REQUEST);
         }
