@@ -23,6 +23,8 @@ public interface NotesService {
 
     NotesResponse getAllNotesByUser(Integer pageNo, Integer pageSize);
 
+    NotesResponse getNotesByUserSearch(Integer pageNo, Integer pageSize, String keyword);
+
     void softDeleteNotes(Integer id) throws ResourceNotFoundException;
 
     void restoreNotes(Integer id) throws ResourceNotFoundException;
