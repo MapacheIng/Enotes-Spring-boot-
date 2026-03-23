@@ -79,6 +79,16 @@ public class NotesController {
         return CommonUtil.createBuilderResponse(notes, HttpStatus.OK);
     }
 
+    @GetMapping("/search-notes")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> searchNotes(
+            @RequestParam(name = "key") String key,
+            @RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        NotesResponse notes = notesService.getNotesByUserSearch(pageNo, pageSize, key);
+        return CommonUtil.createBuilderResponse(notes, HttpStatus.OK);
+    }
+
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteNotes(@PathVariable Integer id) throws ResourceNotFoundException {
