@@ -1,23 +1,29 @@
 package com.mapache.Enotes_API_Service.controller;
 
+import com.mapache.Enotes_API_Service.dto.PasswordResetRequest;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.service.HomeService;
+import com.mapache.Enotes_API_Service.service.UserService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/api/v1/home")
 public class HomeController {
 
     private final HomeService homeService;
+    private final UserService userService;
 
-    public HomeController(HomeService homeService) {
+
+    public HomeController(HomeService homeService, UserService userService) {
         this.homeService = homeService;
+        this.userService = userService;
     }
 
     @GetMapping("/verify")
@@ -30,7 +36,24 @@ public class HomeController {
             return CommonUtil.createErrorResponseMessage("Invalid verification link", HttpStatus.BAD_REQUEST);
         }
         return CommonUtil.createBuilderResponseMessage("Account verified successfully", HttpStatus.OK);
+    }
 
+    @GetMapping("/send-email-reset")
+    public ResponseEntity<?> sendEmailForPasswordReset(@RequestParam String email, HttpServletRequest request) throws ResourceNotFoundException, MessagingException, UnsupportedEncodingException {
+        userService.sendEmailPasswordReset(email, request);
+        return CommonUtil.createBuilderResponseMessage("Password reset email sent successfully", HttpStatus.OK);
+    }
+
+    @GetMapping("/verify-pswd-link")
+    public ResponseEntity<?> verifyPasswordResetLink(@RequestParam Integer uid, @RequestParam String code) throws ResourceNotFoundException {
+        userService.verifyPasswordResetLink(uid, code);
+        return CommonUtil.createBuilderResponseMessage("Verification success", HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-pswd")
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) throws ResourceNotFoundException {
+        userService.resetPassword(passwordResetRequest);
+        return CommonUtil.createBuilderResponseMessage("Password reset successfully", HttpStatus.OK);
     }
 
 }
