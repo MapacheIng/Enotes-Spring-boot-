@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
         if(ObjectUtils.isEmpty(save)){
             return false;
         }
-        emailSend(save, url);
+        emailSendForRegister(save, url);
 
         return !ObjectUtils.isEmpty(save);
 
@@ -100,8 +100,7 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
-    private void emailSend(User save, String url) throws MessagingException, UnsupportedEncodingException {
-
+    private void emailSendForRegister(User save, String url) throws MessagingException, UnsupportedEncodingException {
         String message = """
         Hi, <b>%s</b><br>
         Your account registered successfully.<br>
