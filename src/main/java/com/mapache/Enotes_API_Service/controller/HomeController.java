@@ -1,6 +1,7 @@
 package com.mapache.Enotes_API_Service.controller;
 
 import com.mapache.Enotes_API_Service.dto.PasswordResetRequest;
+import com.mapache.Enotes_API_Service.endpoint.HomeEndpoint;
 import com.mapache.Enotes_API_Service.exception.ResourceNotFoundException;
 import com.mapache.Enotes_API_Service.service.HomeService;
 import com.mapache.Enotes_API_Service.service.UserService;
@@ -17,8 +18,7 @@ import java.io.UnsupportedEncodingException;
 
 
 @RestController
-@RequestMapping("/api/v1/home")
-public class HomeController {
+public class HomeController implements HomeEndpoint {
 
     private final HomeService homeService;
     private final UserService userService;
@@ -31,7 +31,7 @@ public class HomeController {
         this.userService = userService;
     }
 
-    @GetMapping("/verify")
+    @Override
     public ResponseEntity<?> verifyUserAccount(
             @RequestParam Integer uid,
             @RequestParam String code
@@ -45,19 +45,19 @@ public class HomeController {
         return CommonUtil.createBuilderResponseMessage("Account verified successfully", HttpStatus.OK);
     }
 
-    @GetMapping("/send-email-reset")
+    @Override
     public ResponseEntity<?> sendEmailForPasswordReset(@RequestParam String email, HttpServletRequest request) throws ResourceNotFoundException, MessagingException, UnsupportedEncodingException {
         userService.sendEmailPasswordReset(email, request);
         return CommonUtil.createBuilderResponseMessage("Password reset email sent successfully", HttpStatus.OK);
     }
 
-    @GetMapping("/verify-pswd-link")
+    @Override
     public ResponseEntity<?> verifyPasswordResetLink(@RequestParam Integer uid, @RequestParam String code) throws ResourceNotFoundException {
         userService.verifyPasswordResetLink(uid, code);
         return CommonUtil.createBuilderResponseMessage("Verification success", HttpStatus.OK);
     }
 
-    @PostMapping("/reset-pswd")
+    @Override
     public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) throws ResourceNotFoundException {
         userService.resetPassword(passwordResetRequest);
         return CommonUtil.createBuilderResponseMessage("Password reset successfully", HttpStatus.OK);
