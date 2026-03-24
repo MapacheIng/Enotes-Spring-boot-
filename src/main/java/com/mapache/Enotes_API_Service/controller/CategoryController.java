@@ -2,12 +2,12 @@ package com.mapache.Enotes_API_Service.controller;
 
 import com.mapache.Enotes_API_Service.dto.CategoryDto;
 import com.mapache.Enotes_API_Service.dto.CategoryResponse;
+import com.mapache.Enotes_API_Service.endpoint.CategoryEndpoint;
 import com.mapache.Enotes_API_Service.service.CategoryService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +17,11 @@ import java.util.Map;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/v1/category")
-public class CategoryController {
+public class CategoryController implements CategoryEndpoint {
 
     private CategoryService categoryService;
 
-    @PostMapping("/save")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public ResponseEntity<Map<String,Object>> createCategory(@RequestBody CategoryDto categoryDto){
         Boolean saveCategory = categoryService.saveCategory(categoryDto);
         if (!saveCategory) {
@@ -32,8 +30,7 @@ public class CategoryController {
         return CommonUtil.createBuilderResponseMessage("Category saved successfully", HttpStatus.CREATED);
     }
 
-    @GetMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public ResponseEntity<Map<String,Object>> getAllCategory() {
         List<CategoryDto> allCategory = categoryService.getAllCategory();
         if (CollectionUtils.isEmpty(allCategory)){
@@ -42,8 +39,7 @@ public class CategoryController {
         return CommonUtil.createBuilderResponse(allCategory, HttpStatus.OK);
     }
 
-    @GetMapping("/active")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Override
     public ResponseEntity<Map<String, Object>> getActiveCategory() {
         List<CategoryResponse> allCategory = categoryService.getActiveCategory();
         if (CollectionUtils.isEmpty(allCategory)){
@@ -52,8 +48,7 @@ public class CategoryController {
         return CommonUtil.createBuilderResponse(allCategory, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Override
     public ResponseEntity<Map<String, Object>> getCategoryDetailsById(@PathVariable Integer id) throws Exception {
         CategoryDto categoryDto = categoryService.getCategoryById(id);
         if (ObjectUtils.isEmpty(categoryDto)) {
@@ -62,8 +57,7 @@ public class CategoryController {
         return CommonUtil.createBuilderResponse(categoryDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public ResponseEntity<Map<String, Object>> deleteCategoryById(@PathVariable Integer id){
         Boolean deleted = categoryService.deleteCategory(id);
         if (!deleted) {
