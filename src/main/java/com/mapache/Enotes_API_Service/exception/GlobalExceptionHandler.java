@@ -19,62 +19,67 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleException(Exception e) {
-        //log.error("GlobalExceptionHandler :: handleException ::", e.getMessage());
+        log.error("GlobalExceptionHandler : handleException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDeniedException(AccessDeniedException e) {
-        //log.error("GlobalExceptionHandler :: handleException ::", e.getMessage());
+        log.error("GlobalExceptionHandler : handleAccessDeniedException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(SuccessException.class)
     public ResponseEntity<Map<String, Object>> handleSuccessException(SuccessException e) {
-        //log.error("GlobalExceptionHandler :: handleException ::", e.getMessage());
+        log.error("GlobalExceptionHandler : handleSuccessException() : {}", e.getMessage());
         return CommonUtil.createBuilderResponseMessage(e.getMessage(), HttpStatus.OK);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException e) {
-        //log.error("GlobalExceptionHandler :: handleException ::", e.getMessage());
+        log.error("GlobalExceptionHandler : handleIllegalArgumentException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<Map<String, Object>> handleNullPointerException(Exception e) {
-        //log.error("GlobalExceptionHandler :: handleNullPointerException ::", e.getMessage());
+        log.error("GlobalExceptionHandler : handleNullPointerException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(Exception e) {
-        //log.error("GlobalExceptionHandler :: handleResourceNotFoundException ::", e.getMessage());
+        log.error("GlobalExceptionHandler : handleResourceNotFoundException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(ValidationException e) {
+        log.error("GlobalExceptionHandler : handleValidationException() : {}", e.getMessage());
         return CommonUtil.createErrorResponse(e.getErrors(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpMessageConversionException.class)
     public ResponseEntity<Map<String, Object>> handleHttpMessageConversionException(HttpMessageConversionException e) {
+        log.error("GlobalExceptionHandler : handleHttpMessageConversionException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Map<String, Object>> handleFileNotFoundException(IOException e) {
+        log.error("GlobalExceptionHandler : handleFileNotFoundException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ExistDataException.class)
     public ResponseEntity<Map<String, Object>> handleExistDataException(ExistDataException e) {
+        log.error("GlobalExceptionHandler : handleExistDataException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, Object>> handleBadCredentialsException(BadCredentialsException e) {
+        log.error("GlobalExceptionHandler : handleBadCredentialsException() : {}", e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

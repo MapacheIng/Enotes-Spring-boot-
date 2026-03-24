@@ -6,11 +6,13 @@ import com.mapache.Enotes_API_Service.dto.UserResponse;
 import com.mapache.Enotes_API_Service.entity.User;
 import com.mapache.Enotes_API_Service.service.UserService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/user")
 public class UserController {

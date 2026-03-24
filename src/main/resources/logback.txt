@@ -1,0 +1,34 @@
+<!--volver a convertir el archivo a XML para que sea legible por el sistema de logging logback.-->
+<!--        Este archivo define la configuración de logging para la aplicación, -->
+<!--        incluyendo los appenders y el formato de los mensajes de log. &ndash;&gt;-->
+<configuration>
+
+    <appender name="console"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-dd-mm HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="fileAppender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/logging.log</file>
+        <encoder>
+            <pattern>%d{yyyy-dd-mm HH} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>log/logging-%d{yy-MM-dd_HH}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+        </rollingPolicy>
+
+    </appender>
+
+
+
+    <root level="info">
+        <appender-ref ref="console" />
+        <appender-ref ref="fileAppender" />
+    </root>
+
+</configuration>
