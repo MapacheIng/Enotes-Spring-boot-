@@ -11,6 +11,7 @@ import com.mapache.Enotes_API_Service.service.JwtService;
 import com.mapache.Enotes_API_Service.service.AuthService;
 import com.mapache.Enotes_API_Service.util.Validation;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -57,6 +59,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Boolean register(UserRequest userRequest, String url) throws MessagingException, UnsupportedEncodingException {
+        log.info("AuthServiceImpl : register() : Start");
         validation.userValidation(userRequest);
         User user = mapper.map(userRequest, User.class);
         setRole(userRequest, user);
@@ -70,10 +73,12 @@ public class AuthServiceImpl implements AuthService {
 
         User save = userRepository.save(user);
         if(ObjectUtils.isEmpty(save)){
+            log.warn("Message : Registration failed");
             return false;
         }
         emailSendForRegister(save, url);
-
+        log.info("Message : Registration success, verification email sent");
+        log.info("AuthServiceImpl : register() : End");
         return !ObjectUtils.isEmpty(save);
 
     }

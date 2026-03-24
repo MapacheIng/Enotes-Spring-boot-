@@ -7,11 +7,14 @@ import com.mapache.Enotes_API_Service.service.UserService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+
 
 @RestController
 @RequestMapping("/api/v1/home")
@@ -19,6 +22,8 @@ public class HomeController {
 
     private final HomeService homeService;
     private final UserService userService;
+
+    Logger logger = LoggerFactory.getLogger(HomeController.class);
 
 
     public HomeController(HomeService homeService, UserService userService) {
@@ -31,10 +36,12 @@ public class HomeController {
             @RequestParam Integer uid,
             @RequestParam String code
     ) throws ResourceNotFoundException {
+        logger.info("HomeController : verifyUserAccount() : Execution Started");
         Boolean verifyAccount = homeService.verifyAccount(uid, code);
         if (!verifyAccount) {
             return CommonUtil.createErrorResponseMessage("Invalid verification link", HttpStatus.BAD_REQUEST);
         }
+        logger.info("HomeController : verifyUserAccount() : Execution Ended");
         return CommonUtil.createBuilderResponseMessage("Account verified successfully", HttpStatus.OK);
     }
 

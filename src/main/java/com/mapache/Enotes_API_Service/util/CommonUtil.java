@@ -1,7 +1,6 @@
 package com.mapache.Enotes_API_Service.util;
 
 import com.mapache.Enotes_API_Service.config.security.CustomUserDetails;
-import com.mapache.Enotes_API_Service.dto.UserResponse;
 import com.mapache.Enotes_API_Service.entity.User;
 import com.mapache.Enotes_API_Service.handler.GenericResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Map;
+
 
 public class CommonUtil {
 

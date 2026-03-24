@@ -7,6 +7,7 @@ import com.mapache.Enotes_API_Service.service.AuthService;
 import com.mapache.Enotes_API_Service.util.CommonUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.UnsupportedEncodingException;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 class AuthController {
@@ -28,13 +30,15 @@ class AuthController {
         this.authService = authService;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+        log.info("AuthController : registerUser() : Execution Started");
         String url = CommonUtil.getUrl(request);
         Boolean register = authService.register(userRequest, url);
         if (!register) {
             return CommonUtil.createErrorResponseMessage("Register failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        log.info("AuthController : registerUser() : Execution Ended");
         return CommonUtil.createBuilderResponseMessage("User registered successfully", HttpStatus.CREATED);
     }
 
