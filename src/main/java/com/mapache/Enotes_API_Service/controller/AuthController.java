@@ -31,7 +31,7 @@ class AuthController implements AuthEndpoint {
     }
 
     @Override
-    public ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+    public ResponseEntity<?> registerUser(UserRequest userRequest, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
         log.info("AuthController : registerUser() : Execution Started");
         String url = CommonUtil.getUrl(request);
         Boolean register = authService.register(userRequest, url);
@@ -43,7 +43,7 @@ class AuthController implements AuthEndpoint {
     }
 
     @Override
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(LoginRequest loginRequest) {
         LoginResponse loginResponse = authService.login(loginRequest);
         if (ObjectUtils.isEmpty(loginResponse)) {
             return CommonUtil.createErrorResponseMessage("Login failed", HttpStatus.BAD_REQUEST);
