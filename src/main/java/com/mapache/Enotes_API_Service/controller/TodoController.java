@@ -24,7 +24,7 @@ public class TodoController implements TodoEndpoint {
     }
 
     @Override
-    public ResponseEntity<?> saveTodo(@RequestBody TodoDto todoDto) throws ResourceNotFoundException {
+    public ResponseEntity<?> saveTodo(TodoDto todoDto) throws ResourceNotFoundException {
         Boolean saveTodo = todoService.saveTodo(todoDto);
         if (!saveTodo) {
             return CommonUtil.createErrorResponseMessage("Todo not saved successfully", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -33,7 +33,7 @@ public class TodoController implements TodoEndpoint {
     }
 
     @Override
-    public ResponseEntity<?> getTodoById(@PathVariable Integer id) throws ResourceNotFoundException {
+    public ResponseEntity<?> getTodoById(Integer id) throws ResourceNotFoundException {
         TodoDto todoById = todoService.getTodoById(id);
         return CommonUtil.createBuilderResponse(todoById, HttpStatus.OK);
     }

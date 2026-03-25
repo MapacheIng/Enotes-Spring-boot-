@@ -33,8 +33,8 @@ public class HomeController implements HomeEndpoint {
 
     @Override
     public ResponseEntity<?> verifyUserAccount(
-            @RequestParam Integer uid,
-            @RequestParam String code
+            Integer uid,
+            String code
     ) throws ResourceNotFoundException {
         logger.info("HomeController : verifyUserAccount() : Execution Started");
         Boolean verifyAccount = homeService.verifyAccount(uid, code);
@@ -46,19 +46,19 @@ public class HomeController implements HomeEndpoint {
     }
 
     @Override
-    public ResponseEntity<?> sendEmailForPasswordReset(@RequestParam String email, HttpServletRequest request) throws ResourceNotFoundException, MessagingException, UnsupportedEncodingException {
+    public ResponseEntity<?> sendEmailForPasswordReset(String email, HttpServletRequest request) throws ResourceNotFoundException, MessagingException, UnsupportedEncodingException {
         userService.sendEmailPasswordReset(email, request);
         return CommonUtil.createBuilderResponseMessage("Password reset email sent successfully", HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> verifyPasswordResetLink(@RequestParam Integer uid, @RequestParam String code) throws ResourceNotFoundException {
+    public ResponseEntity<?> verifyPasswordResetLink(Integer uid, String code) throws ResourceNotFoundException {
         userService.verifyPasswordResetLink(uid, code);
         return CommonUtil.createBuilderResponseMessage("Verification success", HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) throws ResourceNotFoundException {
+    public ResponseEntity<?> resetPassword(PasswordResetRequest passwordResetRequest) throws ResourceNotFoundException {
         userService.resetPassword(passwordResetRequest);
         return CommonUtil.createBuilderResponseMessage("Password reset successfully", HttpStatus.OK);
     }

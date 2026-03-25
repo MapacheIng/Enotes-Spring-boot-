@@ -4,6 +4,8 @@ import com.mapache.Enotes_API_Service.dto.CategoryDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import static com.mapache.Enotes_API_Service.util.Constants.ROLE_ADMIN;
+import static com.mapache.Enotes_API_Service.util.Constants.ROLE_ADMIN_USER;
 
 import java.util.Map;
 
@@ -11,23 +13,23 @@ import java.util.Map;
 public interface CategoryEndpoint {
 
     @PostMapping("/save")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ROLE_ADMIN)
     ResponseEntity<Map<String,Object>> createCategory(@RequestBody CategoryDto categoryDto);
 
     @GetMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ROLE_ADMIN)
     ResponseEntity<Map<String,Object>> getAllCategory();
 
     @GetMapping("/active")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize(ROLE_ADMIN_USER)
     ResponseEntity<Map<String, Object>> getActiveCategory();
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize(ROLE_ADMIN_USER)
     ResponseEntity<Map<String, Object>> getCategoryDetailsById(@PathVariable Integer id) throws Exception;
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ROLE_ADMIN)
     ResponseEntity<Map<String, Object>> deleteCategoryById(@PathVariable Integer id);
 
 }
